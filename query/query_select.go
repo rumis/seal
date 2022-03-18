@@ -61,6 +61,24 @@ func (s *SelectQuery) Or(e expr.Expr) *SelectQuery {
 	return s
 }
 
+// Having specifies the HAVING condition.
+func (s *SelectQuery) Having(e expr.Expr) *SelectQuery {
+	s.bs.Having(e)
+	return s
+}
+
+// AndHaving concatenates a new HAVING condition with the existing one (if any) using "AND".
+func (s *SelectQuery) AndHaving(e expr.Expr) *SelectQuery {
+	s.bs.AndHaving(e)
+	return s
+}
+
+// OrHaving concatenates a new HAVING expr with the existing one (if any) using "OR".
+func (s *SelectQuery) OrHaving(e expr.Expr) *SelectQuery {
+	s.bs.OrHaving(e)
+	return s
+}
+
 // OrderBy specifies the ORDER BY clause.
 func (s *SelectQuery) OrderBy(cols ...string) *SelectQuery {
 	s.bs.OrderBy(cols...)

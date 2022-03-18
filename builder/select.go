@@ -172,8 +172,11 @@ func (s *Select) AndGroupBy(cols ...string) *Select {
 
 // Having specifies the HAVING clause.
 func (s *Select) Having(e expr.Expr) *Select {
-	s.having = e
-	return s
+	if s.having == nil {
+		s.having = e
+		return s
+	}
+	return s.AndHaving(e)
 }
 
 // AndHaving concatenates a new HAVING condition with the existing one (if any) using "AND".
