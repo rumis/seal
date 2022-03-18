@@ -33,6 +33,7 @@ func (d *Delete) Table(table string) *Delete {
 func (d *Delete) Where(e expr.Expr) *Delete {
 	if d.where == nil {
 		d.where = e
+		return d
 	}
 	return d.AndWhere(e)
 }

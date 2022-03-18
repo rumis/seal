@@ -34,7 +34,8 @@ func TestUpdateStruct(t *testing.T) {
 	assert.Equal(t, []interface{}{"murong", 13, 13}, params)
 
 	// where and
-	sql1, params1, err1 := u.Table("student").Value(Student{
+	u1 := NewUpdate(b)
+	sql1, params1, err1 := u1.Table("student").Value(Student{
 		Name: "murong",
 		Age:  13,
 	}).Where(expr.StandardExp{
@@ -56,8 +57,8 @@ func TestUpdateStruct(t *testing.T) {
 	assert.Contains(t, [][]interface{}{{"murong", 13, 13, "murong"}, {13, "murong", 13, "murong"}}, params1)
 
 	// where and or ,change priority
-
-	sql2, params2, err2 := u.Table("student").Value(Student{
+	u2 := NewUpdate(b)
+	sql2, params2, err2 := u2.Table("student").Value(Student{
 		Name: "murong",
 		Age:  -1,
 	}).Where(expr.StandardExp{

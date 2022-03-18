@@ -94,3 +94,32 @@ func Between(col string, from, to interface{}) expr.Expr {
 func NotBetween(col string, from, to interface{}) expr.Expr {
 	return expr.NotBetween(col, from, to)
 }
+
+// Count generates a COUNT() expression
+// For example:
+//	Count("id"): 					Count(id)
+//	Count("id","id_count"): 		Count(id) AS id_count
+//	Count("id","id_count","user"): 	Count(user.id) AS id_count
+func Count(col string, alias_table ...string) expr.Expr {
+	return expr.Aggregate("COUNT", col, alias_table...)
+}
+
+// SUM generates a SUM() expression
+func Sum(col string, alias_table ...string) expr.Expr {
+	return expr.Aggregate("SUM", col, alias_table...)
+}
+
+// Count generates a MAX() expression
+func Max(col string, alias_table ...string) expr.Expr {
+	return expr.Aggregate("MAX", col, alias_table...)
+}
+
+// Min generates a MIN() expression
+func Min(col string, alias_table ...string) expr.Expr {
+	return expr.Aggregate("MIN", col, alias_table...)
+}
+
+// Avg generates an AVG() expression
+func Avg(col string, alias_table ...string) expr.Expr {
+	return expr.Aggregate("AVG", col, alias_table...)
+}

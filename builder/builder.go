@@ -9,7 +9,7 @@ import (
 // and those manipulating DB data or schema (e.g. INSERT statements).
 type Builder interface {
 	// BuildSelect generates a SELECT clause from the given selected column names.
-	Select(cols []expr.SelectInfo, distinct bool, option string) string
+	Select(cols []expr.Expr, distinct bool, option string) string
 	// Insert
 	Insert(table string, cols []string, vals [][]interface{}, params expr.Params) string
 	// Update

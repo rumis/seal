@@ -24,6 +24,12 @@ func (s *SelectQuery) Select(cols ...string) *SelectQuery {
 	return s
 }
 
+// Agg specifies the aggregate function.
+func (s *SelectQuery) Agg(fn string, col string, alias string, table ...string) *SelectQuery {
+	s.bs.Agg(fn, col, alias, table...)
+	return s
+}
+
 // Distinct specifies whether to select columns distinctively.
 // By default, distinct is false.
 func (s *SelectQuery) Distinct(v bool) *SelectQuery {

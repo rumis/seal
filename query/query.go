@@ -44,20 +44,16 @@ func (q Query) Select(cols ...string) *SelectQuery {
 	return NewSelectQuery(q.b, q.e).Select(cols...)
 }
 
-// Count generate the select query which cols is COUNT(*)
-func (q Query) Count(cols ...string) *SelectQuery {
-	col := "*"
-	if len(cols) > 0 {
-		col = cols[0]
-	}
-	return NewSelectQuery(q.b, q.e).Select("COUNT(" + col + ")")
-}
-
 // SubQuery generate a sub select sql expr
 func (q Query) SubQuery(sub func(q *SelectQuery)) expr.Expr {
 	sq := NewSelectQuery(q.b, q.e)
 	sub(sq)
 	return sq.ToExpr()
+}
+
+// Select generate the select query
+func (q Query) Count(col string) *SelectQuery {
+	return NewSelectQuery(q.b, q.e).Agg("COUNT", col, ALIAS_AGG_COUNT)
 }
 
 // Exec exec a raw sql

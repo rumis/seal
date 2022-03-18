@@ -23,7 +23,7 @@ func TestSelect1(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "SELECT name, age FROM student WHERE age IN (?, ?) AND name LIKE ? OR (age>? AND age<?)",
+	assert.Equal(t, "SELECT name,age FROM student WHERE age IN (?, ?) AND name LIKE ? OR (age>? AND age<?)",
 		sql)
 
 	assert.Equal(t, []interface{}{13, 14, "%mu%", 100, 200}, args)
@@ -65,5 +65,25 @@ func TestJoin1(t *testing.T) {
 
 	assert.Equal(t, esql1, sql1)
 	assert.Equal(t, []interface{}{10086}, args1)
+
+}
+
+func TestAggregate(t *testing.T) {
+
+	b := &BuilderStandard{}
+	s := NewSelect(b)
+
+	sql, args, err := s.Agg("COUNT", "id", "agg_count").
+		From("student").
+		Where(expr.In("age", 13, 14)).
+		ToSql()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "SELECT COUNT(id) AS agg_count FROM student WHERE age IN (?, ?)", sql)
+
+	assert.Equal(t, []interface{}{13, 14}, args)
 
 }

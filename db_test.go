@@ -6,20 +6,17 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestDB(t *testing.T) {
-
-	db, _ := Open("mysql", "")
-
-	err := db.Update("xx").Value(1)
-
-	if err != nil {
-		t.Fatal(err)
-	}
+type User struct {
+	ID         int    `seal:"id"`
+	Name       string `seal:"name"`
+	Age        int    `seal:"age"`
+	Class      int    `seal:"class_id"`
+	CreateTime int    `seal:"create_time"`
 }
 
-type User struct {
+type Class struct {
+	ID   int    `seal:"id"`
 	Name string `seal:"name"`
-	Age  int    `seal:"age"`
 }
 
 func TestDBSqlite(t *testing.T) {
@@ -53,4 +50,10 @@ func TestDBSqlite(t *testing.T) {
 	}
 	t.Error(u)
 
+	var cnt int64
+	err = db.Count("*").From("user").Query().Agg(&cnt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Error(cnt)
 }

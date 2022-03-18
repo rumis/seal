@@ -104,3 +104,21 @@ func (r Rows) OneStruct(ref interface{}) error {
 	}
 	return nil
 }
+
+// Agg scan and return the aggregate result
+func (r Rows) Agg(ref interface{}) error {
+	if r.err != nil {
+		return r.err
+	}
+	defer r.Rows.Close()
+	if !r.Next() {
+		if err := r.Err(); err != nil {
+			return err
+		}
+		return nil
+	}
+	if err := r.Scan(ref); err != nil {
+		return err
+	}
+	return r.Close()
+}

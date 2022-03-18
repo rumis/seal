@@ -49,6 +49,7 @@ func (u *Update) Value(val interface{}) *Update {
 func (u *Update) Where(e expr.Expr) *Update {
 	if u.where == nil {
 		u.where = e
+		return u
 	}
 	return u.AndWhere(e)
 }

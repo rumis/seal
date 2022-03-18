@@ -20,7 +20,7 @@ func NewStandardBuilder() Builder {
 }
 
 // Select generates a SELECT clause from the given selected column names.
-func (q BuilderStandard) Select(cols []expr.SelectInfo, distinct bool, option string) string {
+func (q BuilderStandard) Select(cols []expr.Expr, distinct bool, option string) string {
 	var s bytes.Buffer
 	s.WriteString("SELECT ")
 	if distinct {
@@ -34,11 +34,9 @@ func (q BuilderStandard) Select(cols []expr.SelectInfo, distinct bool, option st
 		s.WriteString("*")
 		return s.String()
 	}
-	column := make([]string, 0, 8)
-	for _, colInfo := range cols {
-		for _, col := range colInfo.Column {
-			column = append(column, colInfo.Table+"."+col)
-		}
+	column := make([]string, 0, len(cols))
+	for _, colExp := range cols {
+		column = append(column, colExp.Build(nil))
 	}
 	s.WriteString(strings.Join(column, ","))
 	return s.String()

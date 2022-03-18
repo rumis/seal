@@ -9,7 +9,7 @@ import (
 // It can be built into a select sql clauses and params by calling the ToSql method.
 type Select struct {
 	b            Builder
-	selects      []expr.SelectInfo
+	selects      []expr.Expr
 	distinct     bool
 	selectOption string
 	from         []string
@@ -31,18 +31,33 @@ func NewSelect(b Builder) *Select {
 
 // Select specifies the columns to be selected.
 func (s *Select) Select(cols ...string) *Select {
-	s.selects = append(s.selects, expr.SelectInfo{
-		Column: cols,
-		Table:  "",
+	s.selects = append(s.selects, expr.ColumnExp{
+		Columns: cols,
+		Table:   "",
 	})
 	return s
 }
 
 // AndSelect adds additional columns to be selected.
 func (s *Select) AndSelect(table string, cols ...string) *Select {
-	s.selects = append(s.selects, expr.SelectInfo{
-		Column: cols,
-		Table:  utils.AliasName(table),
+	s.selects = append(s.selects, expr.ColumnExp{
+		Columns: cols,
+		Table:   utils.AliasName(table),
+	})
+	return s
+}
+
+// Agg add aggregate column to be selected
+func (s *Select) Agg(fn string, col string, alias string, table ...string) *Select {
+	tableName := ""
+	if len(table) > 0 {
+		tableName = table[0]
+	}
+	s.selects = append(s.selects, expr.AggExp{
+		Column: col,
+		Func:   fn,
+		Alias:  alias,
+		Table:  tableName,
 	})
 	return s
 }
@@ -64,8 +79,11 @@ func (s *Select) SelectOption(option string) *Select {
 // First table name will combine with selects
 func (s *Select) From(tables ...string) *Select {
 	s.from = tables
-	if len(tables) > 0 && len(s.selects) > 0 && s.selects[0].Table == "" {
-		s.selects[0].Table = utils.AliasName(tables[0])
+	if len(tables) > 0 && len(s.selects) > 0 {
+		if colExp, ok := s.selects[0].(expr.ColumnExp); ok && colExp.Table == "" {
+			colExp.Table = utils.AliasName(tables[0])
+			s.selects[0] = colExp
+		}
 	}
 	return s
 }
@@ -193,6 +211,20 @@ func (s *Select) Offset(offset int64) *Select {
 // build build the sql and params
 func (s *Select) build() (string, expr.Params) {
 	params := expr.Params{}
+
+	if len(s.from) == 1 {
+		// if only one table, remove the table name from column
+		for i, colExp := range s.selects {
+			switch col := colExp.(type) {
+			case expr.ColumnExp:
+				col.Table = ""
+				s.selects[i] = col
+			case expr.AggExp:
+				col.Table = ""
+				s.selects[i] = col
+			}
+		}
+	}
 	clauses := []string{
 		s.b.Select(s.selects, s.distinct, s.selectOption),
 		s.b.From(s.from),
