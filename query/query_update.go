@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	"github.com/rumis/seal/builder"
 	"github.com/rumis/seal/expr"
 )
@@ -52,6 +54,7 @@ func (u *UpdateQuery) Or(e expr.Expr) *UpdateQuery {
 // Exec
 func (u *UpdateQuery) Exec(cnt *int64) error {
 	sql, args, err := u.bu.ToSql()
+	fmt.Println(sql, args)
 	if err != nil {
 		return err
 	}

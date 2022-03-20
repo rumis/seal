@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	"github.com/rumis/seal/builder"
 	"github.com/rumis/seal/expr"
 )
@@ -106,6 +108,7 @@ func (s *SelectQuery) Offset(offset int64) *SelectQuery {
 // Query
 func (s *SelectQuery) Query() Rows {
 	sql, args, err := s.bs.ToSql()
+	fmt.Println(sql, args)
 	if err != nil {
 		return NewRows(nil, err)
 	}

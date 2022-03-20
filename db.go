@@ -24,3 +24,8 @@ func (db *DB) Begin() (*Tx, error) {
 	}
 	return &Tx{query.NewQuery(db.Builder(), tx), tx}, nil
 }
+
+// Close close the db
+func (db *DB) Close() error {
+	return db.sqlDB.Close()
+}

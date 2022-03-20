@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	"github.com/rumis/seal/builder"
 )
 
@@ -45,6 +47,7 @@ func (i *InsertQuery) Value(val interface{}) *InsertQuery {
 // Exec
 func (u *InsertQuery) Exec(cnt *int64) error {
 	sql, args, err := u.bi.ToSql()
+	fmt.Println(sql, args)
 	if err != nil {
 		return err
 	}

@@ -41,23 +41,23 @@ func (i *Insert) Columns(columns ...string) *Insert {
 // if type of vals is [][]interface{}, cols must be set first and be matched
 func (i *Insert) Values(vals interface{}) *Insert {
 	valsMapFunc := func(val []map[string]interface{}) {
+		if len(val) == 0 {
+			return
+		}
 		i.vals = make([][]interface{}, 0, len(val))
-		firstRow := false
-		for _, vm := range val {
-			if len(i.cols) == 0 {
-				i.cols = make([]string, 0, len(vm))
-				// set columns only when Columns func is not called
-				firstRow = true
+		// set columns only when Columns func is not called
+		if len(i.cols) == 0 {
+			i.cols = make([]string, 0, len(val[0]))
+			for k := range val[0] {
+				i.cols = append(i.cols, k)
 			}
+		}
+		for _, vm := range val {
 			rowVal := make([]interface{}, 0, len(vm))
-			for k, v := range vm {
-				rowVal = append(rowVal, v)
-				if firstRow {
-					i.cols = append(i.cols, k)
-				}
+			for _, k := range i.cols {
+				rowVal = append(rowVal, vm[k])
 			}
 			i.vals = append(i.vals, rowVal)
-			firstRow = false
 		}
 	}
 	switch val := vals.(type) {

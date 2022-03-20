@@ -41,9 +41,10 @@ func Struct2MapSlice(input interface{}) ([]map[string]interface{}, error) {
 // params out must be a pointer
 func Map2Struct(input interface{}, out interface{}) error {
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Result:   out,
-		Metadata: nil,
-		TagName:  "seal",
+		Result:     out,
+		Metadata:   nil,
+		TagName:    "seal",
+		DecodeHook: mapstructure.StringToTimeHookFunc("2006-01-02 15:04:05"),
 	})
 	if err != nil {
 		return err

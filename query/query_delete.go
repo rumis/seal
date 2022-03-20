@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	"github.com/rumis/seal/builder"
 
 	"github.com/rumis/seal/expr"
@@ -41,6 +43,7 @@ func (d *DeleteQuery) Or(e expr.Expr) *DeleteQuery {
 // Exec
 func (u *DeleteQuery) Exec(cnt *int64) error {
 	sql, args, err := u.bd.ToSql()
+	fmt.Println(sql, args)
 	if err != nil {
 		return err
 	}
