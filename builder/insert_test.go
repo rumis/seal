@@ -3,13 +3,14 @@ package builder
 import (
 	"testing"
 
+	"github.com/rumis/seal/options"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInsertStruct(t *testing.T) {
 
 	b := &BuilderStandard{}
-	in := NewInsert(b)
+	in := NewInsert(b, options.Time2StringEncodeHook)
 
 	sql, arg, err := in.Into("student").Value(struct {
 		Name string `seal:"name"`
@@ -31,7 +32,7 @@ func TestInsertStruct(t *testing.T) {
 
 	// t.Error(sql, arg)
 
-	in1 := NewInsert(b)
+	in1 := NewInsert(b, options.Time2StringEncodeHook)
 	sql1, arg1, err1 := in1.Into("student").Values([]struct {
 		Name string `seal:"name,omitvalue:murong"`
 		Age  int    `seal:"age"`
@@ -57,7 +58,7 @@ func TestInsertStruct(t *testing.T) {
 func TestInsertMap(t *testing.T) {
 
 	b := &BuilderStandard{}
-	in := NewInsert(b)
+	in := NewInsert(b, options.Time2StringEncodeHook)
 
 	sql, arg, err := in.Into("student").Value(map[string]interface{}{
 		"name": "murong",
@@ -76,7 +77,7 @@ func TestInsertMap(t *testing.T) {
 
 	// t.Error(sql, arg)
 
-	in1 := NewInsert(b)
+	in1 := NewInsert(b, options.Time2StringEncodeHook)
 	sql1, arg1, err1 := in1.Into("student").Values([]map[string]interface{}{{
 		"age": 13,
 	}, {
@@ -97,7 +98,7 @@ func TestInsertMap(t *testing.T) {
 func TestInsertValue(t *testing.T) {
 
 	b := &BuilderStandard{}
-	in := NewInsert(b)
+	in := NewInsert(b, options.Time2StringEncodeHook)
 
 	sql, arg, err := in.Into("student").Columns("name", "age").Value([]interface{}{"murong", 13}).ToSql()
 
@@ -112,7 +113,7 @@ func TestInsertValue(t *testing.T) {
 
 	// t.Error(sql, arg)
 
-	in1 := NewInsert(b)
+	in1 := NewInsert(b, options.Time2StringEncodeHook)
 	sql1, arg1, err1 := in1.Into("student").Columns("name", "age").Values([][]interface{}{
 		{"murong", 13},
 		{"liu", 14},

@@ -1,22 +1,24 @@
 package query
 
 import (
-	"fmt"
+	"context"
+	"time"
 
 	"github.com/rumis/seal/builder"
 	"github.com/rumis/seal/expr"
 )
 
+// SelectQuery represents the sql builder of select and base query
 type SelectQuery struct {
-	bs *builder.Select
-	e  Executor
+	bs    *builder.Select
+	baseQ Query
 }
 
-// NewSelectQuery
-func NewSelectQuery(b builder.Builder, e Executor) *SelectQuery {
+// NewSelectQuery constructure of SelectQuery
+func NewSelectQuery(b builder.Builder, q Query) *SelectQuery {
 	return &SelectQuery{
-		bs: builder.NewSelect(b),
-		e:  e,
+		bs:    builder.NewSelect(b),
+		baseQ: q,
 	}
 }
 
@@ -105,15 +107,21 @@ func (s *SelectQuery) Offset(offset int64) *SelectQuery {
 	return s
 }
 
-// Query
+// Query queries a SQL statement
 func (s *SelectQuery) Query() Rows {
+
+	sTime := time.Now()
+
 	sql, args, err := s.bs.ToSql()
-	fmt.Println(sql, args)
+
+	if s.baseQ.opts.BuildLog != nil {
+		s.baseQ.opts.BuildLog(context.Background(), time.Since(sTime), sql, args, err)
+	}
+
 	if err != nil {
 		return NewRows(nil, err)
 	}
-	rows, err := s.e.Query(sql, args...)
-	return NewRows(rows, err)
+	return s.baseQ.Query(sql, args...)
 }
 
 // ToExpr return the complete sql string. used for sub sql stmt

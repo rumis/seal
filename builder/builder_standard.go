@@ -9,12 +9,13 @@ import (
 	"github.com/rumis/seal/expr"
 )
 
+// BuilderStandard stand sql builder
 type BuilderStandard struct {
 }
 
 var _ Builder = &BuilderStandard{}
 
-// NewStandardBuilder 构造新Builder
+// NewStandardBuilder constructure of standardbuilder
 func NewStandardBuilder() Builder {
 	return BuilderStandard{}
 }

@@ -22,7 +22,7 @@ func (db *DB) Begin() (*Tx, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Tx{query.NewQuery(db.Builder(), tx), tx}, nil
+	return &Tx{query.NewQuery(db.Builder(), tx, db.Options()), tx}, nil
 }
 
 // Close close the db

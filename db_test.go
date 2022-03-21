@@ -8,6 +8,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rumis/seal/options"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -106,7 +107,9 @@ func TestDBSqlite(t *testing.T) {
 	fmt.Println("dbfile:", dbfile)
 
 	// connect db
-	db, err := Open("sqlite3", dbfile)
+	db, err := Open("sqlite3", dbfile,
+		options.WithBuildLogger(options.ConsoleBuildLogFunc),
+		options.WithExecLogger(options.ConsoleExecLogFunc))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +269,7 @@ func TestDBSqlite(t *testing.T) {
 	var upCheckUser User
 	err = db.Select("id", "name", "age").
 		From("user").
-		Where(Eq("name", u1Name)).
+		Where(Eq("name", u3Name)).
 		Query().OneStruct(&upCheckUser)
 	if err != nil {
 		t.Fatal(err)

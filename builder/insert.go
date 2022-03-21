@@ -2,15 +2,18 @@ package builder
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/rumis/seal/expr"
+	"github.com/rumis/seal/options"
 	"github.com/rumis/seal/utils"
 )
 
 // Insert represents a INSERT query
 // It can be built into a insert sql clauses and params by calling the ToSql method.
 type Insert struct {
-	b Builder
+	b  Builder
+	eh options.EncodeHookFunc
 
 	cols  []string
 	table string
@@ -18,9 +21,10 @@ type Insert struct {
 }
 
 // NewInsert
-func NewInsert(b Builder) *Insert {
+func NewInsert(b Builder, encodeHook options.EncodeHookFunc) *Insert {
 	return &Insert{
-		b: b,
+		b:  b,
+		eh: encodeHook,
 	}
 }
 
@@ -55,7 +59,12 @@ func (i *Insert) Values(vals interface{}) *Insert {
 		for _, vm := range val {
 			rowVal := make([]interface{}, 0, len(vm))
 			for _, k := range i.cols {
-				rowVal = append(rowVal, vm[k])
+				if i.eh != nil {
+					encodeRes, _ := i.eh(reflect.TypeOf(vm[k]), vm[k])
+					rowVal = append(rowVal, encodeRes)
+				} else {
+					rowVal = append(rowVal, vm[k])
+				}
 			}
 			i.vals = append(i.vals, rowVal)
 		}
