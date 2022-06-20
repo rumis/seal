@@ -16,9 +16,6 @@ func Open(driverName string, sourceName string, opts ...options.SealOptionsFunc)
 	if err != nil {
 		return DB{}, err
 	}
-	if err := db.Ping(); err != nil {
-		return DB{}, err
-	}
 	var b builder.Builder
 	switch driverName {
 	case "mysql":
@@ -28,12 +25,20 @@ func Open(driverName string, sourceName string, opts ...options.SealOptionsFunc)
 	default:
 		b = builder.NewStandardBuilder()
 	}
+	return OpenWithDB(db, b, opts...)
+}
 
+// OpenWithDB Create a new DB instance.
+// Note that Open does not check if DSN is specified correctly. It doesn't try to establish a DB connection either.
+// Please refer to sql.Open() for more information.
+func OpenWithDB(db *sql.DB, b builder.Builder, opts ...options.SealOptionsFunc) (DB, error) {
+	if err := db.Ping(); err != nil {
+		return DB{}, err
+	}
 	cfg := options.DefaultSealOptions()
 	for _, fn := range opts {
 		fn(cfg)
 	}
-
 	return DB{
 		query.NewQuery(b, db, cfg),
 		db,

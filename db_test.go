@@ -31,10 +31,10 @@ type ClassResult struct {
 	ID int `seal:"id"`
 }
 
-var classTableColumns = []string{"id", "name"}
-var userTableColumns = []string{"id", "name", "age", "class_id", "create_time"}
-var classTableColumnsNew = []string{"name"}
-var userTableColumnsNew = []string{"name", "age", "class_id", "create_time"}
+// var classTableColumns = []string{"id", "name"}
+// var userTableColumns = []string{"id", "name", "age", "class_id", "create_time"}
+// var classTableColumnsNew = []string{"name"}
+// var userTableColumnsNew = []string{"name", "age", "class_id", "create_time"}
 
 // get a random string
 func randString(length int) string {
