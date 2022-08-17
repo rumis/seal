@@ -108,20 +108,20 @@ func (s *SelectQuery) Offset(offset int64) *SelectQuery {
 }
 
 // Query queries a SQL statement
-func (s *SelectQuery) Query() Rows {
+func (s *SelectQuery) Query(ctx context.Context) Rows {
 
 	sTime := time.Now()
 
 	sql, args, err := s.bs.ToSql()
 
 	if s.baseQ.opts.BuildLog != nil {
-		s.baseQ.opts.BuildLog(context.Background(), time.Since(sTime), sql, args, err)
+		s.baseQ.opts.BuildLog(ctx, time.Since(sTime), sql, args, err)
 	}
 
 	if err != nil {
 		return NewRows(nil, err)
 	}
-	return s.baseQ.Query(sql, args...)
+	return s.baseQ.QueryContext(ctx, sql, args...)
 }
 
 // ToExpr return the complete sql string. used for sub sql stmt

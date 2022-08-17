@@ -48,19 +48,19 @@ func (d *DeleteQuery) Or(e expr.Expr) *DeleteQuery {
 }
 
 // Exec executes a SQL statement
-func (u *DeleteQuery) Exec(cnt *int64) error {
+func (u *DeleteQuery) Exec(ctx context.Context, cnt *int64) error {
 	sTime := time.Now()
 
 	sql, args, err := u.bd.ToSql()
 
 	if u.baseQ.opts.BuildLog != nil {
-		u.baseQ.opts.BuildLog(context.Background(), time.Since(sTime), sql, args, err)
+		u.baseQ.opts.BuildLog(ctx, time.Since(sTime), sql, args, err)
 	}
 
 	if err != nil {
 		return err
 	}
-	result := u.baseQ.Exec(sql, args...)
+	result := u.baseQ.ExecContext(ctx, sql, args...)
 	*cnt, err = result.RowsAffected()
 	if err != nil {
 		return err

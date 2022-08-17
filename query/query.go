@@ -64,43 +64,28 @@ func (q Query) Count(col string) *SelectQuery {
 	return NewSelectQuery(q.b, q).Agg("COUNT", col, ALIAS_AGG_COUNT)
 }
 
-// Exec exec a raw sql
-func (q Query) Exec(sql string, args ...interface{}) sql.Result {
-	sTime := time.Now()
-	result, err := q.e.Exec(sql, args...)
-
-	if q.opts.ExecLog != nil {
-		q.opts.ExecLog(context.Background(), time.Since(sTime), sql, args, err)
-	}
-
-	return NewExecResult(result, err)
-}
-
 // ExecContext exec a raw sql with context
-func (q Query) ExecContext(ctx context.Context, query string, args ...interface{}) sql.Result {
-	result, err := q.e.ExecContext(ctx, query, args...)
-	return NewExecResult(result, err)
-}
-
-// Query exec a raw query sql
-func (q Query) Query(sql string, args ...interface{}) Rows {
+func (q Query) ExecContext(ctx context.Context, sql string, args ...interface{}) sql.Result {
 	sTime := time.Now()
-
-	rows, err := q.e.Query(sql, args...)
+	result, err := q.e.ExecContext(ctx, sql, args...)
 
 	if q.opts.ExecLog != nil {
-		q.opts.ExecLog(context.Background(), time.Since(sTime), sql, args, err)
+		q.opts.ExecLog(ctx, time.Since(sTime), sql, args, err)
 	}
 
-	if err != nil {
-		return NewRows(nil, err)
-	}
-	return NewRows(rows, err)
+	return NewExecResult(result, err)
 }
 
 // QueryContext exec a raw query sql with context
 func (q Query) QueryContext(ctx context.Context, sql string, args ...interface{}) Rows {
+	sTime := time.Now()
+
 	rows, err := q.e.QueryContext(ctx, sql, args...)
+
+	if q.opts.ExecLog != nil {
+		q.opts.ExecLog(ctx, time.Since(sTime), sql, args, err)
+	}
+
 	if err != nil {
 		return NewRows(nil, err)
 	}

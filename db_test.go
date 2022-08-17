@@ -1,6 +1,7 @@
 package seal
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"math/rand"
@@ -99,6 +100,8 @@ func dbInit() (string, error) {
 
 func TestDBSqlite(t *testing.T) {
 
+	ctx := context.WithValue(context.Background(), options.DefaultTraceKey, options.NewTraceId())
+
 	dbfile, err := dbInit()
 	if err != nil {
 		t.Fatal(err)
@@ -121,7 +124,7 @@ func TestDBSqlite(t *testing.T) {
 		Name: "class-temp",
 	}
 	var newClassId int64
-	err = db.Insert("class").Value(c1).Exec(&newClassId) // table:class, one row
+	err = db.Insert("class").Value(c1).Exec(ctx, &newClassId) // table:class, one row
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +136,7 @@ func TestDBSqlite(t *testing.T) {
 		CreateTime: time.Now(),
 	}
 	var newUserId int64
-	err = db.Insert("user").Value(u1).Exec(&newUserId) // table:user, one row
+	err = db.Insert("user").Value(u1).Exec(ctx, &newUserId) // table:user, one row
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +146,7 @@ func TestDBSqlite(t *testing.T) {
 	err = db.Select("id", "name", "age", "class_id", "create_time").
 		From("user").
 		Where(Eq("name", u1Name)).
-		Query().OneStruct(&oneCheck)
+		Query(ctx).OneStruct(&oneCheck)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,12 +174,12 @@ func TestDBSqlite(t *testing.T) {
 		CreateTime: time.Now(),
 	}
 	var multiUserId int64
-	err = db.Insert("user").Values([]User{u2, u3}).Exec(&multiUserId) // table:user, all three rows
+	err = db.Insert("user").Values([]User{u2, u3}).Exec(ctx, &multiUserId) // table:user, all three rows
 	if err != nil {
 		t.Fatal(err)
 	}
 	users := make([]User, 0)
-	err = db.Select("name").From("user").Where(In("name", u2Name, u3Name)).OrderBy("id ASC").Query().AllStruct(&users)
+	err = db.Select("name").From("user").Where(In("name", u2Name, u3Name)).OrderBy("id ASC").Query(ctx).AllStruct(&users)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,14 +196,14 @@ func TestDBSqlite(t *testing.T) {
 		"create_time": time.Now(),
 	}
 	var u4UserId int64
-	err = db.Insert("user").Value(u4).Exec(&u4UserId) // table:user, all four row
+	err = db.Insert("user").Value(u4).Exec(ctx, &u4UserId) // table:user, all four row
 	if err != nil {
 		t.Fatal(err)
 	}
 	u4Res, err := db.Select("id", "name", "age", "class_id", "create_time").
 		From("user").
 		Where(Eq("id", u4UserId)).
-		Query().OneMap()
+		Query(ctx).OneMap()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,12 +221,12 @@ func TestDBSqlite(t *testing.T) {
 		})
 	}
 	var multiMapLastRowId int64
-	err = db.Insert("user").Values(mapRows).Exec(&multiMapLastRowId)
+	err = db.Insert("user").Values(mapRows).Exec(ctx, &multiMapLastRowId)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var allCount int64
-	err = db.Count("*").From("user").Query().Agg(&allCount)
+	err = db.Count("*").From("user").Query(ctx).Agg(&allCount)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -238,19 +241,19 @@ func TestDBSqlite(t *testing.T) {
 	}
 	// column - one
 	var colNewId int64
-	err = db.Insert("user").Columns(columns...).Value(columnValues[0]).Exec(&colNewId)
+	err = db.Insert("user").Columns(columns...).Value(columnValues[0]).Exec(ctx, &colNewId)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log("colOneNewId:", colNewId)
 	// column - multi
-	err = db.Insert("user").Columns(columns...).Values(columnValues).Exec(&colNewId)
+	err = db.Insert("user").Columns(columns...).Values(columnValues).Exec(ctx, &colNewId)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log("colMultiNewId:", colNewId)
 	var colAllCount int64
-	err = db.Count("id").From("user").Query().Agg(&colAllCount)
+	err = db.Count("id").From("user").Query(ctx).Agg(&colAllCount)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -261,7 +264,7 @@ func TestDBSqlite(t *testing.T) {
 	var affectCnt int64
 	err = db.Update("user").Where(Eq("name", u3Name)).Value(User{
 		Age: 116,
-	}).Exec(&affectCnt)
+	}).Exec(ctx, &affectCnt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,7 +273,7 @@ func TestDBSqlite(t *testing.T) {
 	err = db.Select("id", "name", "age").
 		From("user").
 		Where(Eq("name", u3Name)).
-		Query().OneStruct(&upCheckUser)
+		Query(ctx).OneStruct(&upCheckUser)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,17 +283,17 @@ func TestDBSqlite(t *testing.T) {
 
 	// DELETE
 	var rowCountBefore int64
-	err = db.Count("id").From("user").Query().Agg(&rowCountBefore)
+	err = db.Count("id").From("user").Query(ctx).Agg(&rowCountBefore)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var delCount int64
-	err = db.Delete("user").Where(Eq("name", u1Name)).Exec(&delCount)
+	err = db.Delete("user").Where(Eq("name", u1Name)).Exec(ctx, &delCount)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var rowCountAfter int64
-	err = db.Count("id").From("user").Query().Agg(&rowCountAfter)
+	err = db.Count("id").From("user").Query(ctx).Agg(&rowCountAfter)
 	if err != nil {
 		t.Fatal(err)
 	}

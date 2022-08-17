@@ -46,19 +46,19 @@ func (i *InsertQuery) Value(val interface{}) *InsertQuery {
 }
 
 // Exec executes a SQL statement
-func (u *InsertQuery) Exec(lastId *int64) error {
+func (u *InsertQuery) Exec(ctx context.Context, lastId *int64) error {
 	sTime := time.Now()
 
 	sql, args, err := u.bi.ToSql()
 
 	if u.baseQ.opts.BuildLog != nil {
-		u.baseQ.opts.BuildLog(context.Background(), time.Since(sTime), sql, args, err)
+		u.baseQ.opts.BuildLog(ctx, time.Since(sTime), sql, args, err)
 	}
 
 	if err != nil {
 		return err
 	}
-	result := u.baseQ.Exec(sql, args...)
+	result := u.baseQ.ExecContext(ctx, sql, args...)
 	*lastId, err = result.LastInsertId()
 	if err != nil {
 		return err
